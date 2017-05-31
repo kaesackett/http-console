@@ -65,7 +65,7 @@ class LogWatcher(object):
   def dump(self):
     """Output interesting summary statistics to the console."""
 
-    print("Usage stats:")
+    print("USAGE STATS")
 
     # Total Requests
     print("Total Requests: {}".format(self.total))
