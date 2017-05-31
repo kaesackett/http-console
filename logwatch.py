@@ -31,10 +31,11 @@ class LogWatcher(object):
     self.stats["response"] = {}
     self.total = 0
 
-  def watch_file(self, filename):
+  def watch_file(self):
     """Follow a logfile indefinitely."""
 
-    for line in tailer.follow(filename):
+    for line in tailer.follow(open(self.filename)):
+      print("I GOT HERE")
       lw.process_line(line)
 
   def process_line(line):
@@ -60,20 +61,20 @@ class LogWatcher(object):
     print(self.total)
 
     # Top IP and percent of total requests
-    top_ip = sorted(stats["ip"].items(), key=operator.itemgetter(1), reverse=True)
-    print("Top IP: {0} ({1}%)".format(top_ip[0], (stats["ip"][top_ip] / self.total * 100)))
+    top_ip = sorted(self.stats["ip"].items(), key=operator.itemgetter(1), reverse=True)
+    print("Top IP: {0} ({1}%)".format(top_ip[0], (self.stats["ip"][top_ip] / self.total * 100)))
 
     # Most common request method
-    most_common_request = sorted(stats["method"].items(), key=operator.itemgetter(1), reverse=True)
+    most_common_request = sorted(self.stats["method"].items(), key=operator.itemgetter(1), reverse=True)
     print("Most Common Request: {}".format(most_common_request[0]))
 
     # Raw number of GETs and POSTs
-    print("GETs: {0} ({1}%)".format(stats["method"]["GET"]), (stats["method"]["GET"] / self.total * 100))
-    print("POSTs: {0} ({1}%)".format(stats["method"]["POST"]), (stats["method"]["POST"] / self.total * 100))
+    print("GETs: {0} ({1}%)".format(self.stats["method"]["GET"]), (self.stats["method"]["GET"] / self.total * 100))
+    print("POSTs: {0} ({1}%)".format(self.stats["method"]["POST"]), (self.stats["method"]["POST"] / self.total * 100))
 
     # Most frequently requested section
-    most_frequent_section = sorted(stats["section"].items(), key=operator.itemgetter(1), reverse=True)
-    print("Most Frequent Section: {0} ({1}%)".format(most_frequent_section[0], (stats["section"][most_frequent_section] / self.total * 100)))
+    most_frequent_section = sorted(self.stats["section"].items(), key=operator.itemgetter(1), reverse=True)
+    print("Most Frequently Requested Section: {0} ({1}%)".format(most_frequent_section[0], (self.stats["section"][most_frequent_section] / self.total * 100)))
 
 def main():
   # Handle FNF exceptions
@@ -85,12 +86,12 @@ def main():
     return
 
   lw = LogWatcher(options.filename)
-  thread = threading.Thread(target=lw.watch_file, args=(options.filename,))
+  thread = threading.Thread(target=lw.watch_file)
   thread.start()
 
   # Console output every 20 seconds
   while True:
-    time.sleep(20)
+    time.sleep(10)
     lw.dump()
 
 if __name__ == "__main__":
