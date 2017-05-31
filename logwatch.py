@@ -78,19 +78,23 @@ class LogWatcher(object):
     # Total 4xx: 30 (30%)
     # Total 5xx: 20 (10%)
 
-if __name__ == "__main__":
+
+def main():
   # Handle FNF exceptions
   try:
-    print("==== Watching logfile: {}... ====".format(options.filename))
-  except IOError as err:
-    # Fail spectacularly
-    print(err.errno)
-    print(err.strerror)
+    file = open(options.filename, 'r')
+  except IOError:
+    print('There was an error opening the file! Check that the filename was correctly entered, that the file exists, and that its permissions are correct.')
+    return
 
   lw = LogWatcher(options.filename)
   thread = threading.Thread(target=lw.watch_file, args=(options.filename,))
   thread.start()
 
+  # Console output every 20 seconds
   while True:
     time.sleep(20)
     lw.dump()
+
+if __name__ == "__main__":
+  main()
