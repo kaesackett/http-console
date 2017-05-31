@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+
+"""A simple console program that monitors HTTP traffic
+on a machine and provides some summative metrics."""
+
+import threading
 import operator
 import os.path
-import threading
 import tailer # Available in PIP
 import time
 
@@ -42,9 +47,8 @@ class LogWatcher(object):
     method, section, protocol = rest.split('"')[1].split()
     response = rest.lstrip().split(" ")[3]
 
-    for metric, count in [("ip", ip), ("user", user), ("method", method), ("section", section), ("protocol", protocol), ("response", response)]:
-      self.stats[metric][count] += self.stats[metric].get(count, 0) + 1
-      # self.stats["method"][method] += self.stats["method"].get(method, 0) + 1
+    for metric, count in [("ip", ip), ("method", method), ("section", section), ("protocol", protocol), ("response", response)]:
+      self.stats[metric][count] = self.stats[metric].get(count, 0) + 1
     self.total += 1
 
   def dump(self):
@@ -71,18 +75,11 @@ class LogWatcher(object):
     most_frequent_section = sorted(stats["section"].items(), key=operator.itemgetter(1), reverse=True)
     print("Most Frequent Section: {0} ({1}%)".format(most_frequent_section[0], (stats["section"][most_frequent_section] / self.total * 100)))
 
-    # TODO
-    # Response codes spread
-    # Total 2xx: 30 (30%)
-    # Total 3xx: 30 (30%)
-    # Total 4xx: 30 (30%)
-    # Total 5xx: 20 (10%)
-
-
 def main():
   # Handle FNF exceptions
   try:
     file = open(options.filename, 'r')
+    print("====== Watching logfile: {}... ======".format(options.filename))
   except IOError:
     print('There was an error opening the file! Check that the filename was correctly entered, that the file exists, and that its permissions are correct.')
     return
