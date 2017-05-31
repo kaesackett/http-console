@@ -4,7 +4,7 @@
 A simple console program that monitors HTTP traffic
 on a machine and provides some summative metrics.
 
-Example Usage: python logwatch.py -f access.log -h 100
+Example Usage: python logwatch.py -f access.log -m 100
 """
 
 import threading
