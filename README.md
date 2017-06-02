@@ -9,7 +9,7 @@ This program is designed to be run in console. Command-line options are passed f
 
 1. Clone the repository:
 
-<pre><code>$ git clone https://github.com/kaesackett/RoomEase.git</code></pre>
+<pre><code>$ git clone https://github.com/kaesackett/http-console.git</code></pre>
 
 2. Create and activate a virtual environment in the same directory: 
 
