@@ -46,7 +46,7 @@ class LogWatcher(object):
     for line in tailer.follow(open(self.filename)):
       self.process_line(line)
       
-      # We do not want metrics for events older than two minutes - remove old events queue
+      # We do not want metrics for events older than two minutes - remove old events from queue
       self.queue.append(time.time())
       while time.time() - self.queue[0] > 119:
         self.queue.pop(0)
