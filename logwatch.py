@@ -2,7 +2,8 @@
 
 """
 A simple console program that monitors HTTP traffic
-on a machine and provides some summative metrics.
+on a machine, alerts during periods of high volume,
+and provides some summative metrics.
 
 Example Usage: python logwatch.py -f access.log -m 100
 """
@@ -44,6 +45,8 @@ class LogWatcher(object):
 
     for line in tailer.follow(open(self.filename)):
       self.process_line(line)
+      
+      # We do not want metrics for events older than two minutes - remove old events queue
       self.queue.append(time.time())
       while time.time() - self.queue[0] > 119:
         self.queue.pop(0)
@@ -86,6 +89,7 @@ class LogWatcher(object):
     most_frequent_section = sorted(self.stats["section"].items(), key=operator.itemgetter(1), reverse=True)
     print("Most Frequently Requested URI: {0} ({1}%)".format(most_frequent_section[0][0], (most_frequent_section[0][1] / self.total * 100)))
 
+    # Alert logic
     if len(self.queue) > options.high_threshold:
       print("High traffic generated an alert - hits = {0}, triggered at{1}".format(len(self.queue), time.strftime('%l:%M%p %z on %b %d')))
       self.alert = True
@@ -100,6 +104,7 @@ def main():
     file = open(options.filename, 'r')
     print("====== Watching logfile: {}... ======".format(options.filename))
   except IOError:
+    # TODO: Fail more spectacularly than this
     print('There was an error opening the file! Check that the filename was correctly entered, that the file exists, and that its permissions are correct.')
     return
 
@@ -107,7 +112,7 @@ def main():
   thread = threading.Thread(target=lw.watch_file)
   thread.start()
 
-  # Console output every 10 seconds
+  # Console output every 10 seconds, clear console between updates
   while True:
     time.sleep(10)
     os.system('clear')
